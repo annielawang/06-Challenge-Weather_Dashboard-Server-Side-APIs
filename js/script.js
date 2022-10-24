@@ -1,0 +1,169 @@
+/**
+ * Acceptance criteria:
+GIVEN a weather dashboard with form inputs
+WHEN I search for a city
+THEN I am presented with current and future conditions for that city and that city is added to the search history
+WHEN I view current weather conditions for that city
+THEN I am presented with the city name, the date, an icon representation of weather conditions, the temperature, the humidity, and the wind speed
+WHEN I view future weather conditions for that city
+THEN I am presented with a 5-day forecast that displays the date, an icon representation of weather conditions, the temperature, the wind speed, and the humidity
+WHEN I click on a city in the search history
+THEN I am again presented with current and future conditions for that city
+ */
+
+// -----------------------------------Variables--------------------------------
+var $searchBtn = $('.btn');
+var $cityName = $('#city');
+var $cardParent = $('#five-days-weather');
+
+var $currentCity = $('#current_city');
+var $currentDate = $('#current_date');
+var $currentCityTemp = $('#current_city_temp');
+var $currentCityWind = $('#current_city_wind');
+var $currentCityHum = $('#current_city_hum');
+var $currentCityIcon = $('#current_city_icon');
+
+var $leftSide = $('#leftside');
+var localCitiesKey = "LOCAL_CITIES";
+var localCitiesCurrent = [];
+var currentCity;
+
+
+// ---------------------------------Functions-------------------------------
+// generate url request for api
+
+function generateUrl(event){
+    // prevent default behavior of forms
+    event.preventDefault();
+    // append a button
+    currentCity = $cityName.val();
+
+    generateCurrentUrl(currentCity);
+    generateForecastUrl(currentCity);
+    
+    var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${currentCity}</button> </div>`;
+    if(localCitiesCurrent.indexOf(currentCity) == -1) {
+        $leftSide.prepend(newBtnHtml);
+        historyBtnListner();
+        localCitiesCurrent.push(currentCity);
+        localStorage.setItem(localCitiesKey, JSON.stringify(localCitiesCurrent));
+    } else {
+        //TODO: if exist move to the top
+    }
+}
+
+function historyBtnListner() {
+    $('.history_city').on("click", function(){
+        currentCity = $(this).html();
+        generateCurrentUrl(currentCity);
+        generateForecastUrl(currentCity);
+    });
+}
+
+function generateCurrentUrl(cityName){
+    let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
+    return sendUrlAndUseCurrentData(requestUrl);
+}
+
+function sendUrlAndUseCurrentData(requestUrl) {
+    $.ajax({
+        url: requestUrl,
+    }).then(function(response){
+        $currentCity.text(currentCity);
+        $currentDate.text("(" + getCurrentDate() + ")");
+        $currentCityTemp.text("Temp:" + response.main.temp);
+        $currentCityWind.text("Wind:" + response.wind.speed);
+        $currentCityHum.text("Humidity:" + response.main.humidity);
+        var futureIcon = response.weather[0].icon;
+        var imgStr = `<img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">`
+        $currentCityIcon.html(imgStr);
+    });
+}
+
+function getCurrentDate() {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    return mm + '/' + dd + '/' + yyyy;
+}
+
+function generateForecastUrl(cityName){
+    // get input content
+    // let cityNameText = $cityName.val();
+    // put input as a parameter value in url
+    let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
+    return sendForecastUrlAndUseResponseData(requestUrl);
+}
+
+// send api request, get api response and use response data
+function sendForecastUrlAndUseResponseData(requestUrl){
+    $.ajax({
+        url: requestUrl,
+    }).then(function(response){
+        let currentCityName = $cityName.val();
+        $cardParent.html("");
+        for(let i = 0; i < response.list.length; i+=8){
+            // for 5 days forecast
+            var weatherObj = response.list[i];
+            var futureTemperature = weatherObj.main.temp;
+            var futureDate = weatherObj.dt_txt;
+            // get rid of hour info using substring method
+            futureDate = futureDate.substring(0, futureDate.indexOf(" "));
+            var futureIcon = weatherObj.weather[0].icon;
+            var futureHumidity = weatherObj.main.humidity;
+            var futureWind = weatherObj.wind.speed;
+            var newElem = 
+            `<div class="card col-2" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title weather-date">${futureDate}</h5>
+                    <p class="card-text">
+                    <ul>
+                        <img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">        
+                        <li>Temperature:${futureTemperature} °F</li>
+                        <li>Humidity:${futureHumidity} MPH</li>
+                        <li>Wind speed:${futureWind} %</li>
+                    </ul>
+                    </p>
+                </div>
+            </div>`
+            $cardParent.append(newElem);
+            // localStorage.setItem(currentCityName + "_five_future", response);
+        }
+    })
+}
+
+function getCurrentCities() {
+    var localStoredCities = localStorage.getItem(localCitiesKey);
+    if(localStoredCities != null && localStoredCities != "") {
+        localCitiesCurrent = JSON.parse(localStoredCities);
+        currentCity = localCitiesCurrent[0];
+        renderHistory();
+    }
+}
+
+// add history to local storage
+function renderHistory(){
+// get local storage and render on webpages
+    if(localCitiesCurrent.length > 0) {
+        // render right side use the first city
+        generateCurrentUrl(currentCity);
+        generateForecastUrl(currentCity);
+        
+        // append all buttons to the left side
+        for (let index = 0; index < localCitiesCurrent.length; index++) {
+            var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${localCitiesCurrent[index]}</button> </div>`;
+            $leftSide.append(newBtnHtml);
+        }
+        historyBtnListner();
+    }
+}
+
+
+
+// ---------------------Main entry----------------------
+
+// render last researched city and weather on page
+getCurrentCities();
+$searchBtn.on("click", generateUrl);
