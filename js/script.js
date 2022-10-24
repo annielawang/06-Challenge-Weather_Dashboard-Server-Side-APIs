@@ -10,6 +10,7 @@ THEN I am presented with a 5-day forecast that displays the date, an icon repres
 WHEN I click on a city in the search history
 THEN I am again presented with current and future conditions for that city
  */
+
 // -----------------------------------Variables--------------------------------
 var $searchBtn = $('.btn');
 var $cityName = $('#city');
@@ -22,6 +23,11 @@ var $currentCityWind = $('#current_city_wind');
 var $currentCityHum = $('#current_city_hum');
 var $currentCityIcon = $('#current_city_icon');
 
+var $leftSide = $('#leftside');
+var localCitiesKey = "LOCAL_CITIES";
+var localCitiesCurrent = [];
+var currentCity;
+
 
 // ---------------------------------Functions-------------------------------
 // generate url request for api
@@ -29,17 +35,33 @@ var $currentCityIcon = $('#current_city_icon');
 function generateUrl(event){
     // prevent default behavior of forms
     event.preventDefault();
-    generateCurrentUrl();
-    generateForecastUrl();
     // append a button
+    currentCity = $cityName.val();
 
+    generateCurrentUrl(currentCity);
+    generateForecastUrl(currentCity);
+    
+    var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${currentCity}</button> </div>`;
+    if(localCitiesCurrent.indexOf(currentCity) == -1) {
+        $leftSide.prepend(newBtnHtml);
+        historyBtnListner();
+        localCitiesCurrent.push(currentCity);
+        localStorage.setItem(localCitiesKey, JSON.stringify(localCitiesCurrent));
+    } else {
+        //TODO: if exist move to the top
+    }
 }
 
-function generateCurrentUrl(){
-    // get input content
-    let cityNameText = $cityName.val();
-    // put input as a parameter value in url
-    let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityNameText}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
+function historyBtnListner() {
+    $('.history_city').on("click", function(){
+        currentCity = $(this).html();
+        generateCurrentUrl(currentCity);
+        generateForecastUrl(currentCity);
+    });
+}
+
+function generateCurrentUrl(cityName){
+    let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
     return sendUrlAndUseCurrentData(requestUrl);
 }
 
@@ -47,8 +69,7 @@ function sendUrlAndUseCurrentData(requestUrl) {
     $.ajax({
         url: requestUrl,
     }).then(function(response){
-        let currentCityName = $cityName.val();
-        $currentCity.text(currentCityName);
+        $currentCity.text(currentCity);
         $currentDate.text("(" + getCurrentDate() + ")");
         $currentCityTemp.text("Temp:" + response.main.temp);
         $currentCityWind.text("Wind:" + response.wind.speed);
@@ -56,8 +77,6 @@ function sendUrlAndUseCurrentData(requestUrl) {
         var futureIcon = response.weather[0].icon;
         var imgStr = `<img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">`
         $currentCityIcon.html(imgStr);
-
-        localStorage.setItem(currentCityName + "_current", response);
     });
 }
 
@@ -70,11 +89,11 @@ function getCurrentDate() {
     return mm + '/' + dd + '/' + yyyy;
 }
 
-function generateForecastUrl(){
+function generateForecastUrl(cityName){
     // get input content
-    let cityNameText = $cityName.val();
+    // let cityNameText = $cityName.val();
     // put input as a parameter value in url
-    let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityNameText}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
+    let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
     return sendForecastUrlAndUseResponseData(requestUrl);
 }
 
@@ -110,22 +129,35 @@ function sendForecastUrlAndUseResponseData(requestUrl){
                 </div>
             </div>`
             $cardParent.append(newElem);
-            localStorage.setItem(currentCityName + "_five_future", response);
+            // localStorage.setItem(currentCityName + "_five_future", response);
         }
     })
+}
+
+function getCurrentCities() {
+    var localStoredCities = localStorage.getItem(localCitiesKey);
+    if(localStoredCities != null && localStoredCities != "") {
+        localCitiesCurrent = JSON.parse(localStoredCities);
+        currentCity = localCitiesCurrent[0];
+        renderHistory();
+    }
 }
 
 // add history to local storage
 function renderHistory(){
 // get local storage and render on webpages
-// use localStorage.getitem
-// parse data from local storage
-// render data on web page
-}
-
-
-function init() {
-
+    if(localCitiesCurrent.length > 0) {
+        // render right side use the first city
+        generateCurrentUrl(currentCity);
+        generateForecastUrl(currentCity);
+        
+        // append all buttons to the left side
+        for (let index = 0; index < localCitiesCurrent.length; index++) {
+            var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${localCitiesCurrent[index]}</button> </div>`;
+            $leftSide.append(newBtnHtml);
+        }
+        historyBtnListner();
+    }
 }
 
 
@@ -133,6 +165,5 @@ function init() {
 // ---------------------Main entry----------------------
 
 // render last researched city and weather on page
-init();
-renderHistory();
+getCurrentCities();
 $searchBtn.on("click", generateUrl);
