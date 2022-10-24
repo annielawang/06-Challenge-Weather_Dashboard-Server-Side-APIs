@@ -15,24 +15,31 @@
     <div class="container-fluid">
         <!-- Content here -->
         <div class="row">
-            <form class="col-12 col-sm-6 col-md-3">
-                <div class="form-group">
-                  <label for="city" class=""><h2>Search for a city:</h2></label>
-                  <input type="text" class="form-control form-control-lg" id="city" placeholder="Enter a city name">
-                  <large id="emailHelp" class="form-text text-muted"></large>
+            <div class="col-12 col-sm-6 col-md-3 container-fluid">
+                <div class="row justify-content-center mb-5">
+                    <form>
+                        <div class="form-group">
+                          <label for="city" class=""><h2>Search for a city:</h2></label>
+                          <input type="text" class="form-control form-control-lg" id="city" placeholder="Enter a city name">
+                          <large id="emailHelp" class="form-text text-muted"></large>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                    </form>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg">Submit</button>
-            </form>
+                <hr>
+                <div class="row mt-2 justify-content-center">
+                    <button type="button" class="btn btn-primary">Primary</button>
+                </div>
+                
+            </div>
             <div class="col-12 col-sm-6 col-md-9 container-fluid">
                 <div class="row">
                     <!-- jumbotron -->
                     <div class="jumbotron col-12">
-                        <h1 class="display-4"><span></span></h1>
-                        <ul>
-                            <li></li>
-                            <li></li>
-                            <li></li>
-                        </ul>
+                        <h1 class="display-4"><span id="current_city"></span>  <span id="current_date"></span><span id="current_city_icon"></span></h1>
+                            <p id="current_city_temp"></p>
+                            <p id="current_city_wind"></p>
+                            <p id="current_city_hum"></p>
                     </div>
                 </div>
                 <div class="row justify-content-between" id="five-days-weather">
