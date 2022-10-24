@@ -10,7 +10,7 @@ THEN I am presented with a 5-day forecast that displays the date, an icon repres
 WHEN I click on a city in the search history
 THEN I am again presented with current and future conditions for that city
  */
-// -----------------Variables-----------------------
+// -----------------------------------Variables--------------------------------
 
 // city input
 
@@ -28,77 +28,106 @@ var $searchBtn = $('.btn');
 var $cityName = $('#city');
 var $cardParent = $('#five-days-weather');
 
+var $currentCity = $('#current_city');
+var $currentDate = $('#current_date');
+var $currentCityTemp = $('#current_city_temp');
+var $currentCityWind = $('#current_city_wind');
+var $currentCityHum = $('#current_city_hum');
+var $currentCityIcon = $('#current_city_icon');
 
 
-
-
-// ----------------------Functions--------------------
-
-// add event listener to button
-
+// ---------------------------------Functions-------------------------------
 // generate url request for api
+
 function generateUrl(event){
     // prevent default behavior of forms
     event.preventDefault();
+    generateCurrentUrl();
+    generateForecastUrl();
+    // append a button
+
+}
+
+function generateCurrentUrl(){
     // get input content
     let cityNameText = $cityName.val();
-    // put input in url
-    let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityNameText}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
-    sendUrlAndUseResponseData(requestUrl);
+    // put input as a parameter value in url
+    let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityNameText}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
+    return sendUrlAndUseCurrentData(requestUrl);
 }
-// send api request, get api response and parse results
-function sendUrlAndUseResponseData(requestUrl){
-    console.log(requestUrl);
+
+function sendUrlAndUseCurrentData(requestUrl) {
     $.ajax({
         url: requestUrl,
     }).then(function(response){
-        var j = 0;
+        let currentCityName = $cityName.val();
+        $currentCity.text(currentCityName);
+        $currentDate.text("(" + getCurrentDate() + ")");
+        $currentCityTemp.text("Temp:" + response.main.temp);
+        $currentCityWind.text("Wind:" + response.wind.speed);
+        $currentCityHum.text("Humidity:" + response.main.humidity);
+        var futureIcon = response.weather[0].icon;
+        var imgStr = `<img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">`
+        $currentCityIcon.html(imgStr);
+
+        localStorage.setItem(currentCityName + "_current", response);
+    });
+}
+
+function getCurrentDate() {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    return mm + '/' + dd + '/' + yyyy;
+}
+
+function generateForecastUrl(){
+    // get input content
+    let cityNameText = $cityName.val();
+    // put input as a parameter value in url
+    let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityNameText}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
+    return sendForecastUrlAndUseResponseData(requestUrl);
+}
+
+// send api request, get api response and use response data
+function sendForecastUrlAndUseResponseData(requestUrl){
+    $.ajax({
+        url: requestUrl,
+    }).then(function(response){
+        let currentCityName = $cityName.val();
+        $cardParent.html("");
         for(let i = 0; i < response.list.length; i+=8){
-            j++;
-
-            // for 5 days predicates
+            // for 5 days forecast
             var weatherObj = response.list[i];
-            var temperature = weatherObj.main.temp;
-            var currentDate = weatherObj.dt_txt;
-            var currentIcon = weatherObj.weather[0].icon;
-            var currentHumidity = weatherObj.main.humidity;
-            var currentWind = weatherObj.wind.speed;
-            // var weatherDateID = "#weather-date-" + j;
-            // var $weatherDate = $(weatherDateID).text(currentDate);
-            // console.log($weatherDate);
-
-            var newElem = `<div class="card col-2" style="width: 18rem;">
-            <div class="card-body" id="card-1">
-              <h5 class="card-title weather-date">${currentDate}</h5>
-              <img src="" alt="weather-icon">
-              <p class="card-text">
-                <ul>
-                    <li>Temperature:${temperature} °F</li>
-                    <li>Humidity:${currentHumidity} MPH</li>
-                    <li>Wind speed:${currentWind} %</li>
-                </ul>
-              </p>
-            </div>
-        </div>`
-        $cardParent.append(newElem);
-
-            // create card and elements and put info into this card and append child.
-            // create element and render current date
-
-            // create element and render icon
-            // create element and render temperature
-            // create element and render humidity
-            // create element and render wind speed
-
-
-
+            var futureTemperature = weatherObj.main.temp;
+            var futureDate = weatherObj.dt_txt;
+            // get rid of hour info using substring method
+            futureDate = futureDate.substring(0, futureDate.indexOf(" "));
+            var futureIcon = weatherObj.weather[0].icon;
+            var futureHumidity = weatherObj.main.humidity;
+            var futureWind = weatherObj.wind.speed;
+            var newElem = 
+            `<div class="card col-2" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title weather-date">${futureDate}</h5>
+                    <p class="card-text">
+                    <ul>
+                        <img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">        
+                        <li>Temperature:${futureTemperature} °F</li>
+                        <li>Humidity:${futureHumidity} MPH</li>
+                        <li>Wind speed:${futureWind} %</li>
+                    </ul>
+                    </p>
+                </div>
+            </div>`
+            $cardParent.append(newElem);
+            localStorage.setItem(currentCityName + "_five_future", response);
         }
     })
-
-    // "lat": 34.0901,
-    //   "lon": -118.4065,
-    //http://openweathermap.org/img/wn/01d@2x.png
 }
+
 // add history to local storage
 function renderHistory(){
 // get local storage and render on webpages
@@ -108,14 +137,15 @@ function renderHistory(){
 }
 
 
+function init() {
 
-
-
+}
 
 
 
 // ---------------------Main entry----------------------
 
 // render last researched city and weather on page
+init();
 renderHistory();
 $searchBtn.on("click", generateUrl);
