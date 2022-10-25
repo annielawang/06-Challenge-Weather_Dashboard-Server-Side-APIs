@@ -10,7 +10,6 @@ THEN I am presented with a 5-day forecast that displays the date, an icon repres
 WHEN I click on a city in the search history
 THEN I am again presented with current and future conditions for that city
  */
-
 // -----------------------------------Variables--------------------------------
 var $searchBtn = $('.btn');
 var $cityName = $('#city');
@@ -44,15 +43,14 @@ function generateUrl(event){
     var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${currentCity}</button> </div>`;
     if(localCitiesCurrent.indexOf(currentCity) == -1) {
         $leftSide.prepend(newBtnHtml);
-        historyBtnListner();
+        // historyBtnListener();
         localCitiesCurrent.push(currentCity);
+        // add history to local storage
         localStorage.setItem(localCitiesKey, JSON.stringify(localCitiesCurrent));
-    } else {
-        //TODO: if exist move to the top
     }
 }
 
-function historyBtnListner() {
+function historyBtnListener() {
     $('.history_city').on("click", function(){
         currentCity = $(this).html();
         generateCurrentUrl(currentCity);
@@ -62,7 +60,7 @@ function historyBtnListner() {
 
 function generateCurrentUrl(cityName){
     let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
-    return sendUrlAndUseCurrentData(requestUrl);
+    sendUrlAndUseCurrentData(requestUrl);
 }
 
 function sendUrlAndUseCurrentData(requestUrl) {
@@ -71,11 +69,11 @@ function sendUrlAndUseCurrentData(requestUrl) {
     }).then(function(response){
         $currentCity.text(currentCity);
         $currentDate.text("(" + getCurrentDate() + ")");
-        $currentCityTemp.text("Temp:" + response.main.temp);
-        $currentCityWind.text("Wind:" + response.wind.speed);
-        $currentCityHum.text("Humidity:" + response.main.humidity);
-        var futureIcon = response.weather[0].icon;
-        var imgStr = `<img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">`
+        $currentCityTemp.text("Temp: " + response.main.temp + " °F");
+        $currentCityWind.text("Wind: " + response.wind.speed + " MPH");
+        $currentCityHum.text("Humidity: " + response.main.humidity + "%");
+        var currentIcon = response.weather[0].icon;
+        var imgStr = `<img src="http://openweathermap.org/img/wn/${currentIcon}@2x.png">`
         $currentCityIcon.html(imgStr);
     });
 }
@@ -85,16 +83,13 @@ function getCurrentDate() {
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
-
     return mm + '/' + dd + '/' + yyyy;
 }
 
 function generateForecastUrl(cityName){
-    // get input content
-    // let cityNameText = $cityName.val();
     // put input as a parameter value in url
     let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
-    return sendForecastUrlAndUseResponseData(requestUrl);
+    sendForecastUrlAndUseResponseData(requestUrl);
 }
 
 // send api request, get api response and use response data
@@ -102,7 +97,6 @@ function sendForecastUrlAndUseResponseData(requestUrl){
     $.ajax({
         url: requestUrl,
     }).then(function(response){
-        let currentCityName = $cityName.val();
         $cardParent.html("");
         for(let i = 0; i < response.list.length; i+=8){
             // for 5 days forecast
@@ -129,11 +123,11 @@ function sendForecastUrlAndUseResponseData(requestUrl){
                 </div>
             </div>`
             $cardParent.append(newElem);
-            // localStorage.setItem(currentCityName + "_five_future", response);
         }
     })
 }
 
+// get the first city name from local storage
 function getCurrentCities() {
     var localStoredCities = localStorage.getItem(localCitiesKey);
     if(localStoredCities != null && localStoredCities != "") {
@@ -143,9 +137,8 @@ function getCurrentCities() {
     }
 }
 
-// add history to local storage
+// render the first city weather info on page
 function renderHistory(){
-// get local storage and render on webpages
     if(localCitiesCurrent.length > 0) {
         // render right side use the first city
         generateCurrentUrl(currentCity);
@@ -156,11 +149,9 @@ function renderHistory(){
             var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${localCitiesCurrent[index]}</button> </div>`;
             $leftSide.append(newBtnHtml);
         }
-        historyBtnListner();
+        historyBtnListener();
     }
 }
-
-
 
 // ---------------------Main entry----------------------
 
