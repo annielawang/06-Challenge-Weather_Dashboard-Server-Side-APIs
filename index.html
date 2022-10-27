@@ -1,50 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Dashboard</title>
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Dashboard</title>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 </head>
+
 <body>
-    <div class="container-fluid">
-        <!-- Content here -->
-        <div class="row">
-            <div class="col-12 col-sm-6 col-md-3 container-fluid">
-                <div class="row justify-content-center mb-5">
-                    <form>
-                        <div class="form-group">
-                          <label for="city" class=""><h2>Search for a city:</h2></label>
-                          <input type="text" class="form-control form-control-lg" id="city" placeholder="Enter a city name">
-                          <large id="emailHelp" class="form-text text-muted"></large>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
-                    </form>
-                </div>
-                <hr>
-                <div class="container-fluid" id="leftside">
-                </div>
+  <header>
+    <h1 class="text-center bg-primary">Weather Dashboard</h1>
+  </header>
+  <div class="container-fluid">
+    <!-- Content here -->
+    <div class="row">
+      <div class="col-12 col-sm-6 col-md-3 container-fluid">
+        <div class="row justify-content-center mb-5">
+          <form>
+            <div class="form-group">
+              <label for="city" class="">
+                <h2>Search for a city:</h2>
+              </label>
+              <input type="text" class="form-control form-control-lg" id="city" placeholder="Enter a city name">
+              <large class="form-text text-muted"></large>
             </div>
-            <div class="col-12 col-sm-6 col-md-9 container-fluid">
-                <div class="row">
-                    <div class="jumbotron col-12">
-                        <h1 class="display-4"><span id="current_city"></span>  <span id="current_date"></span><span id="current_city_icon"></span></h1>
-                            <p id="current_city_temp"></p>
-                            <p id="current_city_wind"></p>
-                            <p id="current_city_hum"></p>
-                    </div>
-                </div>
-                <div class="row justify-content-between" id="five-days-weather">
-                </div>
-            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Search</button>
+          </form>
         </div>
-    </div>    
-    <!-- JS needed for Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
-    <script src="./js/script.js"></script>
+        <hr>
+        <div id="leftside">
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-9 container-fluid">
+        <div class="row">
+          <!-- jumbotron -->
+          <div class="jumbotron col-12 bg-warning">
+            <h1 class="display-4"><span id="current_city"></span> <span id="current_date"></span><span
+                id="current_city_icon"></span></h1>
+            <p id="current_city_temp"></p>
+            <p id="current_city_wind"></p>
+            <p id="current_city_hum"></p>
+          </div>
+        </div>
+        <div class="row justify-content-between" id="five-days-weather">
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- JS needed for Bootstrap -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
+    integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
+    crossorigin="anonymous"></script>
+  <script src="./js/script.js"></script>
 </body>
+
 </html>
