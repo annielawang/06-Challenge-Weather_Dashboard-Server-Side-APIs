@@ -37,22 +37,27 @@ function generateUrl(event){
     event.preventDefault();
     // append a button
     currentCity = $cityName.val();
+    // When the input is empty, alert and do nothing.
+    if(currentCity == ""){
+        alert("Please enter a city name.");
+        return;
+    }
 
     generateCurrentUrl(currentCity);
     generateForecastUrl(currentCity);
     
     var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${currentCity}</button> </div>`;
     if(localCitiesCurrent.indexOf(currentCity) == -1) {
+        // append the new city name button if it doesn't exist in history buttons
         $leftSide.prepend(newBtnHtml);
-        historyBtnListner();
+        // add new city name to local storage
         localCitiesCurrent.push(currentCity);
         localStorage.setItem(localCitiesKey, JSON.stringify(localCitiesCurrent));
-    } else {
-        //TODO: if exist move to the top
     }
 }
 
-function historyBtnListner() {
+// send url requests to weather API using the history city name of the button clicked
+function historyBtnListener() {
     $('.history_city').on("click", function(){
         currentCity = $(this).html();
         generateCurrentUrl(currentCity);
@@ -60,15 +65,18 @@ function historyBtnListner() {
     });
 }
 
+// generate url for current weather
 function generateCurrentUrl(cityName){
     let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
     return sendUrlAndUseCurrentData(requestUrl);
 }
 
+// send current weather api request and use the response
 function sendUrlAndUseCurrentData(requestUrl) {
     $.ajax({
         url: requestUrl,
     }).then(function(response){
+        // use response to render .jumbotron sub-elements
         $currentCity.text(currentCity);
         $currentDate.text("(" + getCurrentDate() + ")");
         $currentCityTemp.text("Temp:" + response.main.temp);
@@ -85,25 +93,24 @@ function getCurrentDate() {
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
-
     return mm + '/' + dd + '/' + yyyy;
 }
 
+// generate url for future weather
 function generateForecastUrl(cityName){
-    // get input content
-    // let cityNameText = $cityName.val();
-    // put input as a parameter value in url
+    // get input content and use it as a parameter value in url
     let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
     return sendForecastUrlAndUseResponseData(requestUrl);
 }
 
-// send api request, get api response and use response data
+// send weather forecast api request, get api response and use response data
 function sendForecastUrlAndUseResponseData(requestUrl){
     $.ajax({
         url: requestUrl,
     }).then(function(response){
         let currentCityName = $cityName.val();
         $cardParent.html("");
+        // use api response to render weather forecast cards
         for(let i = 0; i < response.list.length; i+=8){
             // for 5 days forecast
             var weatherObj = response.list[i];
@@ -115,7 +122,7 @@ function sendForecastUrlAndUseResponseData(requestUrl){
             var futureHumidity = weatherObj.main.humidity;
             var futureWind = weatherObj.wind.speed;
             var newElem = 
-            `<div class="card col-2" style="width: 18rem;">
+            `<div class="card col-2 bg-info" style="width: 18rem;">
                 <div class="card-body">
                     <h5 class="card-title weather-date">${futureDate}</h5>
                     <p class="card-text">
@@ -134,6 +141,7 @@ function sendForecastUrlAndUseResponseData(requestUrl){
     })
 }
 
+// get history city names from local storage
 function getCurrentCities() {
     var localStoredCities = localStorage.getItem(localCitiesKey);
     if(localStoredCities != null && localStoredCities != "") {
@@ -143,24 +151,21 @@ function getCurrentCities() {
     }
 }
 
-// add history to local storage
+// render history city names on page as buttons and send url requests based on the button clicked
 function renderHistory(){
 // get local storage and render on webpages
     if(localCitiesCurrent.length > 0) {
         // render right side use the first city
         generateCurrentUrl(currentCity);
         generateForecastUrl(currentCity);
-        
         // append all buttons to the left side
         for (let index = 0; index < localCitiesCurrent.length; index++) {
             var newBtnHtml = `<div class="row justify-content-center mt-2"><button type="button" class="btn btn-primary history_city">${localCitiesCurrent[index]}</button> </div>`;
             $leftSide.append(newBtnHtml);
         }
-        historyBtnListner();
+        historyBtnListener();
     }
 }
-
-
 
 // ---------------------Main entry----------------------
 
