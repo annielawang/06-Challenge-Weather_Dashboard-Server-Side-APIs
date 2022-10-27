@@ -49,6 +49,7 @@ function generateUrl(event){
     if(localCitiesCurrent.indexOf(currentCity) == -1) {
         // append the new city name button if it doesn't exist in history buttons
         $leftSide.prepend(newBtnHtml);
+        historyBtnListener();
         // add new city name to local storage
         localCitiesCurrent.push(currentCity);
         // add history to local storage
