@@ -10,7 +10,6 @@ THEN I am presented with a 5-day forecast that displays the date, an icon repres
 WHEN I click on a city in the search history
 THEN I am again presented with current and future conditions for that city
  */
-
 // -----------------------------------Variables--------------------------------
 var $searchBtn = $('.btn');
 var $cityName = $('#city');
@@ -52,6 +51,7 @@ function generateUrl(event){
         $leftSide.prepend(newBtnHtml);
         // add new city name to local storage
         localCitiesCurrent.push(currentCity);
+        // add history to local storage
         localStorage.setItem(localCitiesKey, JSON.stringify(localCitiesCurrent));
     }
 }
@@ -68,7 +68,7 @@ function historyBtnListener() {
 // generate url for current weather
 function generateCurrentUrl(cityName){
     let requestUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
-    return sendUrlAndUseCurrentData(requestUrl);
+    sendUrlAndUseCurrentData(requestUrl);
 }
 
 // send current weather api request and use the response
@@ -79,11 +79,11 @@ function sendUrlAndUseCurrentData(requestUrl) {
         // use response to render .jumbotron sub-elements
         $currentCity.text(currentCity);
         $currentDate.text("(" + getCurrentDate() + ")");
-        $currentCityTemp.text("Temp:" + response.main.temp);
-        $currentCityWind.text("Wind:" + response.wind.speed);
-        $currentCityHum.text("Humidity:" + response.main.humidity);
-        var futureIcon = response.weather[0].icon;
-        var imgStr = `<img src="http://openweathermap.org/img/wn/${futureIcon}@2x.png">`
+        $currentCityTemp.text("Temp: " + response.main.temp + " °F");
+        $currentCityWind.text("Wind: " + response.wind.speed + " MPH");
+        $currentCityHum.text("Humidity: " + response.main.humidity + "%");
+        var currentIcon = response.weather[0].icon;
+        var imgStr = `<img src="http://openweathermap.org/img/wn/${currentIcon}@2x.png">`
         $currentCityIcon.html(imgStr);
     });
 }
@@ -100,7 +100,7 @@ function getCurrentDate() {
 function generateForecastUrl(cityName){
     // get input content and use it as a parameter value in url
     let requestUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=imperial&appid=e677746088bd5891b31a29b800f81424`
-    return sendForecastUrlAndUseResponseData(requestUrl);
+    sendForecastUrlAndUseResponseData(requestUrl);
 }
 
 // send weather forecast api request, get api response and use response data
@@ -108,7 +108,6 @@ function sendForecastUrlAndUseResponseData(requestUrl){
     $.ajax({
         url: requestUrl,
     }).then(function(response){
-        let currentCityName = $cityName.val();
         $cardParent.html("");
         // use api response to render weather forecast cards
         for(let i = 0; i < response.list.length; i+=8){
@@ -136,7 +135,6 @@ function sendForecastUrlAndUseResponseData(requestUrl){
                 </div>
             </div>`
             $cardParent.append(newElem);
-            // localStorage.setItem(currentCityName + "_five_future", response);
         }
     })
 }
@@ -153,7 +151,6 @@ function getCurrentCities() {
 
 // render history city names on page as buttons and send url requests based on the button clicked
 function renderHistory(){
-// get local storage and render on webpages
     if(localCitiesCurrent.length > 0) {
         // render right side use the first city
         generateCurrentUrl(currentCity);
