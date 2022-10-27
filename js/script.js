@@ -42,7 +42,6 @@ function generateUrl(event){
         alert("Please enter a city name.");
         return;
     }
-
     generateCurrentUrl(currentCity);
     generateForecastUrl(currentCity);
     
@@ -50,6 +49,7 @@ function generateUrl(event){
     if(localCitiesCurrent.indexOf(currentCity) == -1) {
         // append the new city name button if it doesn't exist in history buttons
         $leftSide.prepend(newBtnHtml);
+        historyBtnListener();
         // add new city name to local storage
         localCitiesCurrent.push(currentCity);
         localStorage.setItem(localCitiesKey, JSON.stringify(localCitiesCurrent));
