@@ -26,7 +26,7 @@ WHEN I click on a city in the search history, THEN I am again presented with cur
 * jQuery
   
 ## Webpage screenshot
-[Work day scheduler](./assets/weather-dashboard.png)
+[Weather Dashboard](./assets/weather-dashboard.png)
 
 ## License
 MIT
